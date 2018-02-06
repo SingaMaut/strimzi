@@ -11,8 +11,10 @@ import io.strimzi.controller.cluster.operations.resource.ServiceOperations;
 import io.strimzi.controller.cluster.resources.ClusterDiffResult;
 import io.strimzi.controller.cluster.resources.KafkaConnectCluster;
 import io.strimzi.controller.cluster.resources.Source2Image;
+import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
+import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,10 +93,6 @@ public class KafkaConnectClusterOperations extends AbstractClusterOperations<Kaf
         }
     };
 
-    @Override
-    protected CompositeOperation<KafkaConnectCluster> createOp() {
-        return create;
-    }
 
     private final CompositeOperation<KafkaConnectCluster> delete = new CompositeOperation<KafkaConnectCluster>() {
 
@@ -120,16 +118,6 @@ public class KafkaConnectClusterOperations extends AbstractClusterOperations<Kaf
             return new ClusterOperation<>(KafkaConnectCluster.fromDeployment(namespace, name, dep, imagesStreamResources), null);
         }
     };
-
-    @Override
-    protected CompositeOperation<KafkaConnectCluster> deleteOp() {
-        return delete;
-    }
-
-    @Override
-    protected CompositeOperation<KafkaConnectCluster> updateOp() {
-        return update;
-    }
 
     private final CompositeOperation<KafkaConnectCluster> update = new CompositeOperation<KafkaConnectCluster>() {
         @Override
@@ -239,5 +227,20 @@ public class KafkaConnectClusterOperations extends AbstractClusterOperations<Kaf
         }
 
         return scaleUp;
+    }
+
+    @Override
+    public void create(String namespace, String name, Handler<AsyncResult<Void>> handler) {
+        execute("connect", "create", namespace, name, create, handler);
+    }
+
+    @Override
+    public void delete(String namespace, String name, Handler<AsyncResult<Void>> handler) {
+        execute("connect", "delete", namespace, name, delete, handler);
+    }
+
+    @Override
+    public void update(String namespace, String name, Handler<AsyncResult<Void>> handler) {
+        execute("connect", "update", namespace, name, update, handler);
     }
 }
