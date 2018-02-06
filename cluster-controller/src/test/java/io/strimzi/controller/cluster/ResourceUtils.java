@@ -20,6 +20,7 @@ package io.strimzi.controller.cluster;
 import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.ConfigMapBuilder;
 import io.strimzi.controller.cluster.resources.KafkaCluster;
+import io.strimzi.controller.cluster.resources.ZookeeperCluster;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,8 +59,8 @@ public class ResourceUtils {
      * @param healthTimeout
      * @return
      */
-    public static ConfigMap createConfigMap(String clusterCmNamespace, String clusterCmName, int replicas, String image, int healthDelay,
-                                            int healthTimeout, String metricsCmJson) {
+    public static ConfigMap createKafkaClusterCm(String clusterCmNamespace, String clusterCmName, int replicas, String image, int healthDelay,
+                                                 int healthTimeout, String metricsCmJson) {
         Map<String, String> cmData = new HashMap<>();
         cmData.put(KafkaCluster.KEY_REPLICAS, Integer.toString(replicas));
         cmData.put(KafkaCluster.KEY_IMAGE, image);
@@ -68,6 +69,12 @@ public class ResourceUtils {
         // TODO Take a Storage parameter for this
         cmData.put(KafkaCluster.KEY_STORAGE, "{\"type\": \"ephemeral\"}");
         cmData.put(KafkaCluster.KEY_METRICS_CONFIG, metricsCmJson);
+        cmData.put(ZookeeperCluster.KEY_REPLICAS, Integer.toString(replicas));
+        cmData.put(ZookeeperCluster.KEY_IMAGE, image+"-zk");
+        cmData.put(ZookeeperCluster.KEY_HEALTHCHECK_DELAY, Integer.toString(healthDelay));
+        cmData.put(ZookeeperCluster.KEY_HEALTHCHECK_TIMEOUT, Integer.toString(healthTimeout));
+        cmData.put(ZookeeperCluster.KEY_STORAGE, "{\"type\": \"ephemeral\"}");
+        cmData.put(ZookeeperCluster.KEY_METRICS_CONFIG, metricsCmJson);
         return new ConfigMapBuilder()
                 .withNewMetadata()
                 .withName(clusterCmName)

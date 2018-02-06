@@ -37,7 +37,7 @@ public class KafkaClusterTest {
     private final int healthDelay = 120;
     private final int healthTimeout = 30;
     private final String metricsCmJson = "{\"animal\":\"wombat\"}";
-    private final ConfigMap cm = ResourceUtils.createConfigMap(namespace, cluster, replicas, image, healthDelay, healthTimeout, metricsCmJson);
+    private final ConfigMap cm = ResourceUtils.createKafkaClusterCm(namespace, cluster, replicas, image, healthDelay, healthTimeout, metricsCmJson);
     private final KafkaCluster kc = KafkaCluster.fromConfigMap(cm);
 
     @Test
@@ -135,7 +135,7 @@ public class KafkaClusterTest {
 
     @Test
     public void testDiffMetrics() {
-        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createConfigMap(namespace, cluster,
+        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createKafkaClusterCm(namespace, cluster,
                 replicas, image, healthDelay, healthTimeout,"{\"something\":\"different\"}"));
         ClusterDiffResult diff = kc.diff(other.generateMetricsConfigMap(), other.generateStatefulSet(true));
         assertFalse(diff.getDifferent());
@@ -148,7 +148,7 @@ public class KafkaClusterTest {
 
     @Test
     public void testDiffScaleDown() {
-        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createConfigMap(namespace, cluster,
+        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createKafkaClusterCm(namespace, cluster,
                 replicas + 1, image, healthDelay, healthTimeout, metricsCmJson));
         ClusterDiffResult diff = kc.diff(other.generateMetricsConfigMap(), other.generateStatefulSet(true));
         assertFalse(diff.getDifferent());
@@ -161,7 +161,7 @@ public class KafkaClusterTest {
 
     @Test
     public void testDiffScaleUp() {
-        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createConfigMap(namespace, cluster,
+        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createKafkaClusterCm(namespace, cluster,
                 replicas - 1, image, healthDelay, healthTimeout, metricsCmJson));
         ClusterDiffResult diff = kc.diff(other.generateMetricsConfigMap(), other.generateStatefulSet(true));
         assertFalse(diff.getDifferent());
@@ -174,7 +174,7 @@ public class KafkaClusterTest {
 
     @Test
     public void testDiffImage() {
-        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createConfigMap(namespace, cluster,
+        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createKafkaClusterCm(namespace, cluster,
                 replicas, "differentimage", healthDelay, healthTimeout, metricsCmJson));
         ClusterDiffResult diff = kc.diff(other.generateMetricsConfigMap(), other.generateStatefulSet(true));
         assertTrue(diff.getDifferent());
@@ -187,7 +187,7 @@ public class KafkaClusterTest {
 
     @Test
     public void testDiffHealthDelay() {
-        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createConfigMap(namespace, cluster,
+        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createKafkaClusterCm(namespace, cluster,
                 replicas, image, healthDelay+1, healthTimeout, metricsCmJson));
         ClusterDiffResult diff = kc.diff(other.generateMetricsConfigMap(), other.generateStatefulSet(true));
         assertTrue(diff.getDifferent());
@@ -200,7 +200,7 @@ public class KafkaClusterTest {
 
     @Test
     public void testDiffHealthTimeout() {
-        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createConfigMap(namespace, cluster,
+        KafkaCluster other = KafkaCluster.fromConfigMap(ResourceUtils.createKafkaClusterCm(namespace, cluster,
                 replicas, image, healthDelay, healthTimeout+1, metricsCmJson));
         ClusterDiffResult diff = kc.diff(other.generateMetricsConfigMap(), other.generateStatefulSet(true));
         assertTrue(diff.getDifferent());
